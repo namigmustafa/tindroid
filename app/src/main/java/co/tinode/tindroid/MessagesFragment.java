@@ -427,6 +427,7 @@ public class MessagesFragment extends Fragment implements MenuProvider {
             }
         });
         mPinnedViewPager = view.findViewById(R.id.previewPager);
+        setupPinnedMessages();
         mPinnedViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {

@@ -141,8 +141,14 @@ public class Cache {
 
             // Keep in app to prevent garbage collection.
             TindroidApp.retainCache(sInstance);
+
+            initFCM();
         }
 
+        return sInstance.mTinode;
+    }
+
+    public static void initFCM() {
         if (!sInstance.mFCMTokenRequested) {
             FirebaseMessaging fbId = FirebaseMessaging.getInstance();
             //noinspection ConstantConditions: Google lies about getInstance not returning null.
@@ -159,7 +165,6 @@ public class Cache {
                 Log.w(TAG, "FirebaseMessaging not available");
             }
         }
-        return sInstance.mTinode;
     }
 
     // Invalidate existing cache.
@@ -171,6 +176,7 @@ public class Cache {
             sInstance.mTinode.logout();
             sInstance.mTinode = null;
         }
+        sInstance.mFCMTokenRequested = false;
         FirebaseMessaging.getInstance().unregister();
     }
 

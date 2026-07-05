@@ -54,7 +54,7 @@ public class MessageDb implements BaseColumns {
      */
     static final String COLUMN_NAME_TOPIC_ID = "topic_id";
     /**
-     * Id of the originator of the message, references users._ID
+     * ID of the originator of the message, references users._ID
      */
     private static final String COLUMN_NAME_USER_ID = "user_id";
     /**
@@ -470,6 +470,7 @@ public class MessageDb implements BaseColumns {
                 " CASE WHEN LENGTH(" + COLUMN_NAME_CONTENT + ") > " + MAX_INBAND_CONTENT_SIZE + " THEN" +
                 " SUBSTR(" + COLUMN_NAME_CONTENT + ", 1, " + MAX_INBAND_CONTENT_SIZE + ") ELSE " + COLUMN_NAME_CONTENT +
                 " END AS " + COLUMN_NAME_CONTENT +
+                " FROM " + TABLE_NAME +
                 " WHERE " + COLUMN_NAME_TOPIC_ID + "=" + topicId + " AND " +
                 COLUMN_NAME_EFFECTIVE_SEQ + "=" + effSeq, null);
     }
