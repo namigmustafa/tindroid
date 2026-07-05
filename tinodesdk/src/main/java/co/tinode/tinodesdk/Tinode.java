@@ -1369,7 +1369,7 @@ public class Tinode {
             return new PromisedReply<>((ServerMessage) null);
         }
 
-        if (mDeviceToken != null && !mDeviceToken.equals(token)) {
+        if (mDeviceToken != null && mDeviceToken.equals(token)) {
             // No change: return resolved promise.
             return new PromisedReply<>((ServerMessage) null);
         }
