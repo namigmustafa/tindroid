@@ -1210,7 +1210,7 @@ public class UiUtils {
             return activity.getString(R.string.error_invalid_alias);
         }
 
-        // Setup a delayed check for alias availability.
+        // Set up a delayed check for alias availability.
         Message msg = aliasChecker.obtainMessage(ALIAS_VALIDATOR_ID, alias);
         aliasChecker.sendMessageDelayed(msg, ALIAS_AVAILABILITY_CHECK_DELAY);
         return null;

@@ -729,12 +729,12 @@ public class CallFragment extends Fragment {
         }
     }
 
-    // Sends a SDP offer to the peer.
+    // Sends an SDP offer to the peer.
     private void handleSendOffer(SessionDescription sd) {
         mTopic.videoCallOffer(mCallSeqID, new SDPAux(sd.type.canonicalForm(), sd.description));
     }
 
-    // Sends a SDP answer to the peer.
+    // Sends an SDP answer to the peer.
     private void handleSendAnswer(SessionDescription sd) {
         mTopic.videoCallAnswer(mCallSeqID, new SDPAux(sd.type.canonicalForm(), sd.description));
     }

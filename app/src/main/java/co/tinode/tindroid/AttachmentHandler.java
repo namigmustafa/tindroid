@@ -287,8 +287,9 @@ public class AttachmentHandler extends Worker {
 
     @SuppressWarnings("UnusedReturnValue")
     static long enqueueDownloadAttachment(AppCompatActivity activity, String ref, byte[] bits,
-                                          String fname, String mimeType) {
+                                          @NonNull String fname, String mimeType) {
         long downloadId = -1;
+        fname = fname.replaceAll("[\\\\/:*?\"<>|]", "_");
         if (ref != null) {
             try {
                 URL url = new URL(Cache.getTinode().getBaseUrl(), ref);
@@ -306,15 +307,8 @@ public class AttachmentHandler extends Worker {
                 Toast.makeText(activity, R.string.failed_to_download, Toast.LENGTH_SHORT).show();
             }
         } else if (bits != null) {
-            // Create file in a downloads directory by default.
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            // Make sure Downloads folder exists.
-            path.mkdirs();
-
-            File file = new File(path, fname);
-
             if (TextUtils.isEmpty(mimeType)) {
-                mimeType = UiUtils.getMimeType(Uri.fromFile(file));
+                mimeType = UiUtils.getMimeType(Uri.fromFile(new File(fname)));
                 if (mimeType == null) {
                     mimeType = "*/*";
                 }
@@ -322,6 +316,14 @@ public class AttachmentHandler extends Worker {
 
             Uri result;
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                // Create file in a downloads directory by default.
+                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                // Make sure Downloads folder exists.
+                if (!path.exists() && !path.mkdirs()) {
+                    Log.w(TAG, "Failed to create Downloads directory");
+                }
+
+                File file = new File(path, fname);
                 try (FileOutputStream fos = new FileOutputStream(file)) {
                     // Save file to local storage.
                     fos.write(bits);
@@ -331,6 +333,10 @@ public class AttachmentHandler extends Worker {
                     Toast.makeText(activity, R.string.failed_to_save_download, Toast.LENGTH_SHORT).show();
                     return downloadId;
                 }
+
+                // Make the downloaded file is visible.
+                MediaScannerConnection.scanFile(activity,
+                        new String[]{file.toString()}, null, null);
             } else {
                 ContentValues cv = new ContentValues();
                 cv.put(MediaStore.Downloads.DISPLAY_NAME, fname);
@@ -354,21 +360,19 @@ public class AttachmentHandler extends Worker {
                 }
             }
 
-            // Make the downloaded file is visible.
-            MediaScannerConnection.scanFile(activity,
-                    new String[]{file.toString()}, null, null);
-
-            // Open downloaded file.
-            Intent intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.setDataAndType(result, mimeType);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            try {
-                activity.startActivity(intent);
-            } catch (ActivityNotFoundException ex) {
-                Log.w(TAG, "No application can handle downloaded file", ex);
-                Toast.makeText(activity, R.string.failed_to_open_file, Toast.LENGTH_SHORT).show();
-                activity.startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+            if (result != null) {
+                // Open downloaded file.
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setDataAndType(result, mimeType);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try {
+                    activity.startActivity(intent);
+                } catch (ActivityNotFoundException ex) {
+                    Log.w(TAG, "No application can handle downloaded file", ex);
+                    Toast.makeText(activity, R.string.failed_to_open_file, Toast.LENGTH_SHORT).show();
+                    activity.startActivity(new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+                }
             }
         } else {
             Log.w(TAG, "Invalid or missing attachment");
@@ -386,11 +390,6 @@ public class AttachmentHandler extends Worker {
             return -1;
         }
 
-        // Ensure directory exists.
-        Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                .mkdirs();
-
         DownloadManager.Request req = new DownloadManager.Request(uri);
         // Always add Origin header to satisfy CORS. If server does not need CORS it won't hurt anyway.
         req.addRequestHeader("Origin", Cache.getTinode().getHttpOrigin());
@@ -400,17 +399,27 @@ public class AttachmentHandler extends Worker {
             }
         }
 
-        return dm.enqueue(
-                req.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
-                        DownloadManager.Request.NETWORK_MOBILE)
-                        .setMimeType(mime)
-                        .setAllowedOverRoaming(false)
-                        .setTitle(fname)
-                        .setDescription(activity.getString(R.string.download_title))
-                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                        .setVisibleInDownloadsUi(true)
-                        .setDestinationUri(Uri.fromFile(new File(Environment
-                                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fname))));
+        req.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
+                DownloadManager.Request.NETWORK_MOBILE)
+                .setMimeType(mime)
+                .setAllowedOverRoaming(false)
+                .setTitle(fname)
+                .setDescription(activity.getString(R.string.download_title))
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setVisibleInDownloadsUi(true);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // Ensure directory exists.
+            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!path.exists() && !path.mkdirs()) {
+                Log.w(TAG, "Failed to create Downloads directory");
+            }
+            req.setDestinationUri(Uri.fromFile(new File(path, fname)));
+        } else {
+            req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fname);
+        }
+
+        return dm.enqueue(req);
     }
 
     private static @Nullable URI wrapRefUrl(@Nullable String refUrl) {
@@ -501,7 +510,7 @@ public class AttachmentHandler extends Worker {
         super.onStopped();
     }
 
-    // This is long running/blocking call. It should not be called on UI thread.
+    // This is long-running/blocking call. It should not be called on UI thread.
     private ListenableWorker.Result uploadMessageAttachment(final Context context, final Data args) {
         Storage store = BaseDb.getInstance().getStore();
 
@@ -602,7 +611,7 @@ public class AttachmentHandler extends Worker {
             }
 
             if (uploadDetails.fileSize > maxFileUploadSize) {
-                // Fail: file is too big to be send in-band or out of band.
+                // Fail: file is too big to be sent in-band or out of band.
                 if (is != null) {
                     is.close();
                 }

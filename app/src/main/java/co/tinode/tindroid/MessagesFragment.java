@@ -136,6 +136,10 @@ public class MessagesFragment extends Fragment implements MenuProvider {
     private LinearLayoutManager mMessageViewLayoutManager;
     private RecyclerView mRecyclerView;
     private MessagesAdapter mMessagesAdapter;
+
+    public MessagesAdapter getMessagesAdapter() {
+        return mMessagesAdapter;
+    }
     private SwipeRefreshLayout mRefresher;
 
     private int mSelectedPin = -1;
@@ -978,8 +982,11 @@ public class MessagesFragment extends Fragment implements MenuProvider {
         if (args != null) {
             args.putString(Const.INTENT_EXTRA_TOPIC, mTopicName);
             // Save the text in the send field.
-            String draft = ((EditText) activity.findViewById(R.id.editMessage)).getText().toString().trim();
-            args.putString(MESSAGE_TO_SEND, draft);
+            EditText editMessage = activity.findViewById(R.id.editMessage);
+            if (editMessage != null) {
+                String draft = editMessage.getText().toString().trim();
+                args.putString(MESSAGE_TO_SEND, draft);
+            }
             args.putString(MESSAGE_TEXT_ACTION, mTextAction.name());
             args.putInt(MESSAGE_QUOTED_SEQ_ID, mQuotedSeqID);
             args.putSerializable(MESSAGE_QUOTED, mQuote);
@@ -1591,7 +1598,7 @@ public class MessagesFragment extends Fragment implements MenuProvider {
         private int mBucketIndex;
         // Number of samples per bucket in mScratchBuff.
         private int mAggregate;
-        // Number of samples added the the current bucket.
+        // Number of samples added the current bucket.
         private int mSamplesPerBucket;
 
         AudioSampler() {
@@ -1690,11 +1697,11 @@ public class MessagesFragment extends Fragment implements MenuProvider {
         // Downscale the amplitudes 2x.
         private void compact() {
             int len = VISUALIZATION_BARS / 2;
-            // Donwsample the main buffer: two consecutive samples make one new sample.
+            // Downsample the main buffer: two consecutive samples make one new sample.
             for (int i = 0; i < len; i ++) {
                 mSamples[i] = (mSamples[i * 2] + mSamples[i * 2 + 1]) * 0.5f;
             }
-            // Copy scratch buffer to the upper half the the main buffer.
+            // Copy scratch buffer to the upper half the main buffer.
             System.arraycopy(mScratchBuff, 0, mSamples, len, len);
             // Clear the scratch buffer.
             Arrays.fill(mScratchBuff, 0f);
@@ -1718,14 +1725,13 @@ public class MessagesFragment extends Fragment implements MenuProvider {
         @Override
         public Fragment createFragment(int position) {
             Bundle args = new Bundle();
-            PinnedMessageFragment frag = new PinnedMessageFragment(mMessagesAdapter);
             if (mTopic != null && mTopic.getPinned() != null) {
                 int[] pinned = mTopic.getPinned();
                 args.putString(PinnedMessageFragment.ARG_TOPIC_NAME, mTopicName);
                 // Reverse order: most recent pin is added as first item.
                 args.putInt(PinnedMessageFragment.ARG_CONTENT_ID, pinned[pinned.length - position - 1]);
             }
-            frag.setArguments(args);
+            PinnedMessageFragment frag = PinnedMessageFragment.create(mMessagesAdapter, args);
             mFragments.put(position, frag);
             return frag;
         }
@@ -1758,7 +1764,7 @@ public class MessagesFragment extends Fragment implements MenuProvider {
                 return;
             }
 
-            for(int i = 0, nsize = mFragments.size(); i < nsize; i++) {
+            for(int i = 0, nSize = mFragments.size(); i < nSize; i++) {
                 PinnedMessageFragment frag =  mFragments.valueAt(i);
                 if (frag.mSeq == seq) {
                     frag.reloadMessage();
@@ -1772,17 +1778,23 @@ public class MessagesFragment extends Fragment implements MenuProvider {
         static final String ARG_CONTENT_ID = "content_id";
         static final String ARG_TOPIC_NAME = "topic_name";
 
-        final WeakReference<MessagesAdapter> mAdapterRef;
+        private WeakReference<MessagesAdapter> mAdapterRef;
 
         private int mSeq = 0;
         private String mTopicName = null;
 
-        PinnedMessageFragment(MessagesAdapter adapter) {
-            mAdapterRef = new WeakReference<>(adapter);
+        public PinnedMessageFragment() {
+        }
+
+        static PinnedMessageFragment create(MessagesAdapter adapter, Bundle args) {
+            PinnedMessageFragment frag = new PinnedMessageFragment();
+            frag.mAdapterRef = new WeakReference<>(adapter);
+            frag.setArguments(args);
+            return frag;
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             return inflater.inflate(R.layout.fragment_pinned_page, container, false);
         }
 
@@ -1795,9 +1807,17 @@ public class MessagesFragment extends Fragment implements MenuProvider {
                 TextView view = (TextView) getView();
                 if (view != null) {
                     loadMessageContent(view);
-                    MessagesAdapter adapter = mAdapterRef.get();
+                    MessagesAdapter adapter = mAdapterRef != null ? mAdapterRef.get() : null;
+                    if (adapter == null) {
+                        Fragment parent = getParentFragment();
+                        if (parent instanceof MessagesFragment) {
+                            adapter = ((MessagesFragment) parent).getMessagesAdapter();
+                        }
+                    }
+
                     if (adapter != null) {
-                        view.setOnClickListener(v -> adapter.scrollToAndAnimate(mSeq));
+                        final MessagesAdapter finalAdapter = adapter;
+                        view.setOnClickListener(v -> finalAdapter.scrollToAndAnimate(mSeq));
                     }
                 }
             }

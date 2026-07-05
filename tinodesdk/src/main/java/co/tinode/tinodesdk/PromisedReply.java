@@ -1,7 +1,5 @@
 package co.tinode.tinodesdk;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -53,8 +51,6 @@ import java.util.concurrent.CountDownLatch;
  *
  */
 public class PromisedReply<T> {
-    private static final String TAG = "PromisedReply";
-
     private enum State {WAITING, RESOLVED, REJECTED}
 
     private T mResult = null;

@@ -120,7 +120,7 @@ public class Tinode {
 
     private static final String UPLOAD_PATH = "/file/u/";
 
-    // Value interpreted as 'content deleted', unicode 0x2421.
+    // Value interpreted as 'content deleted', Unicode 0x2421.
     public static final String NULL_VALUE = "␡";
     public static final byte[] NULL_BYTES = NULL_VALUE.getBytes(StandardCharsets.UTF_8);
 
@@ -1133,7 +1133,7 @@ public class Tinode {
     }
 
     /**
-     * Get ID of the current logged in user.
+     * Get ID of the current logged-in user.
      *
      * @return user ID of the current user.
      */
@@ -1142,7 +1142,7 @@ public class Tinode {
     }
 
     /**
-     * Check if the given user ID belong to the current logged in user.
+     * Check if the given user ID belong to the current logged-in user.
      *
      * @param uid ID of the user to check.
      * @return true if the ID belong to the current user, false otherwise.
@@ -1539,7 +1539,7 @@ public class Tinode {
      * Create account using a single basic authentication scheme. A connection must be established
      * prior to calling this method.
      *
-     * @param uname    user name
+     * @param uname    username
      * @param password password
      * @param login    use the new account for authentication
      * @param tags     discovery tags
@@ -1562,7 +1562,7 @@ public class Tinode {
     }
 
     /**
-     * Change user name and password for accounts using Basic auth scheme.
+     * Change username and password for accounts using Basic auth scheme.
      *
      * @param uid      user ID being updated or null if temporary authentication params are provided.
      * @param uname    new login or null to keep the old login.
@@ -1575,7 +1575,7 @@ public class Tinode {
     }
 
     /**
-     * Change user name and password for accounts using Basic auth scheme with temporary auth params.
+     * Change username and password for accounts using Basic auth scheme with temporary auth params.
      *
      * @param auth scheme:secret pair to use for temporary authentication of this action.
      * @param uname new login or null to keep the old login.
@@ -1591,7 +1591,7 @@ public class Tinode {
      * Send a basic login packet to the server. A connection must be established prior to calling
      * this method. Success or failure will be reported through {@link EventListener#onLogin(int, String)}
      *
-     * @param uname    user name
+     * @param uname    username
      * @param password password
      * @return PromisedReply of the reply ctrl message
      */
@@ -1717,7 +1717,7 @@ public class Tinode {
         }
 
         if (isAuthenticated()) {
-            // Don't try to login again if we are logged in.
+            // Don't try to log in again if we are logged in.
             return new PromisedReply<>((ServerMessage) null);
         }
 
@@ -1838,7 +1838,7 @@ public class Tinode {
      * be automatically dispatched. A {@link Topic#subscribe()} should be normally used instead.
      *
      * @param topicName name of the topic to subscribe to
-     * @param set       values to be assign to topic on success.
+     * @param set       values to be assigned to topic on success.
      * @param get       query for topic values.
      * @return PromisedReply of the reply ctrl message
      */
@@ -1967,7 +1967,7 @@ public class Tinode {
     }
 
     /**
-     * Low-level request to delete a subscription. Use {@link Topic#eject(String, boolean)} ()} instead.
+     * Low-level request to delete a subscription. Use {@link Topic#eject(String, boolean)} instead.
      *
      * @param topicName name of the topic
      * @param user      user ID to unsubscribe
@@ -1980,7 +1980,7 @@ public class Tinode {
     }
 
     /**
-     * Low-level request to delete a credential. Use {@link MeTopic#delCredential(String, String)} ()} instead.
+     * Low-level request to delete a credential. Use {@link MeTopic#delCredential(String, String)} instead.
      *
      * @param cred credential to delete.
      * @return PromisedReply of the reply ctrl message
@@ -2913,7 +2913,7 @@ public class Tinode {
         public void onError(Connection conn, Exception err) {
             // No need to call handleDisconnect here. It will be called from onDisconnect().
 
-            // If the promise is waiting, reject. Otherwise it's not our problem.
+            // If the promise is waiting, reject. Otherwise, it's not our problem.
             try {
                 rejectPromises(err);
             } catch (Exception ignored) {

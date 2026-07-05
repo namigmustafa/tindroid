@@ -12,8 +12,6 @@ import androidx.core.content.ContextCompat;
 import co.tinode.tindroid.R;
 
 public class ConnectionAnimView extends RelativeLayout {
-    private static final String TAG = "ConnectionAnimView";
-
     private final Handler handler = new Handler();
     private boolean isAnimating;
 

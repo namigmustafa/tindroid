@@ -576,6 +576,10 @@ public class MessageActivity extends BaseActivity
         mTopic = null;
         mTopicName = null;
 
+        if (isFinishing()) {
+            Cache.clearDataBundles();
+        }
+
         UiUtils.setVisibleTopic(null);
 
         mMessageSender.shutdownNow();

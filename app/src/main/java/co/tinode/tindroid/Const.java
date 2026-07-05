@@ -23,7 +23,7 @@ public class Const {
     public static final String CLICK_ACTION_CHAT = "chat";
     public static final String CLICK_ACTION_SAVE = "save";
 
-    // Maximum length of user name or topic title.
+    // Maximum length of username or topic title.
     public static final int MAX_TITLE_LENGTH = 60;
     // Maximum length of topic description.
     public static final int MAX_DESCRIPTION_LENGTH = 360;
@@ -48,6 +48,10 @@ public class Const {
     public static final int MAX_AVATAR_SIZE = 384;
     // Maximum byte size of avatar sent in-band.
     public static final int MAX_INBAND_AVATAR_SIZE = 4096;
+
+    // Maximum size of a binary payload in a Bundle.
+    // Offloaded to memory cache if exceeded to avoid TransactionTooLargeException.
+    public static final int MAX_BUNDLE_PAYLOAD_SIZE = 65536;
 
     public static final String CALL_NOTIFICATION_CHAN_ID = "video_calls";
     public static final String NEWMSG_NOTIFICATION_CHAN_ID = "new_message";

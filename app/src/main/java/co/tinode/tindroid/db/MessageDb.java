@@ -41,6 +41,11 @@ public class MessageDb implements BaseColumns {
 
     static final int MESSAGE_PREVIEW_LENGTH = 80;
     /**
+     * Maximum size of the message content to be loaded in a single row.
+     * Large messages are truncated to avoid SQLiteBlobTooBigException.
+     */
+    private static final int MAX_INBAND_CONTENT_SIZE = 1024 * 1024;
+    /**
      * The name of the main table.
      */
     static final String TABLE_NAME = "messages";
@@ -404,7 +409,24 @@ public class MessageDb implements BaseColumns {
      * @return cursor with the messages.
      */
     public static Cursor query(SQLiteDatabase db, long topicId, int pageCount, int pageSize) {
-        final String sql = "SELECT * FROM " + TABLE_NAME +
+        final String sql = "SELECT " +
+                _ID + "," +
+                COLUMN_NAME_TOPIC_ID + "," +
+                COLUMN_NAME_USER_ID + "," +
+                COLUMN_NAME_STATUS + "," +
+                COLUMN_NAME_SENDER + "," +
+                COLUMN_NAME_TS + "," +
+                COLUMN_NAME_SEQ + "," +
+                COLUMN_NAME_HIGH + "," +
+                COLUMN_NAME_DEL_ID + "," +
+                COLUMN_NAME_REPLACES_SEQ + "," +
+                COLUMN_NAME_EFFECTIVE_TS + "," +
+                COLUMN_NAME_EFFECTIVE_SEQ + "," +
+                COLUMN_NAME_HEAD + "," +
+                " CASE WHEN LENGTH(" + COLUMN_NAME_CONTENT + ") > " + MAX_INBAND_CONTENT_SIZE + " THEN" +
+                " SUBSTR(" + COLUMN_NAME_CONTENT + ", 1, " + MAX_INBAND_CONTENT_SIZE + ") ELSE " + COLUMN_NAME_CONTENT +
+                " END AS " + COLUMN_NAME_CONTENT +
+                " FROM " + TABLE_NAME +
                 " WHERE "
                 + COLUMN_NAME_TOPIC_ID + "=" + topicId +
                 " AND "
@@ -425,7 +447,24 @@ public class MessageDb implements BaseColumns {
      * @return cursor with the message (close after use!).
      */
     static Cursor getMessageById(SQLiteDatabase db, long msgId) {
-        return db.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE _id=" + msgId, null);
+        return db.rawQuery("SELECT " +
+                _ID + "," +
+                COLUMN_NAME_TOPIC_ID + "," +
+                COLUMN_NAME_USER_ID + "," +
+                COLUMN_NAME_STATUS + "," +
+                COLUMN_NAME_SENDER + "," +
+                COLUMN_NAME_TS + "," +
+                COLUMN_NAME_SEQ + "," +
+                COLUMN_NAME_HIGH + "," +
+                COLUMN_NAME_DEL_ID + "," +
+                COLUMN_NAME_REPLACES_SEQ + "," +
+                COLUMN_NAME_EFFECTIVE_TS + "," +
+                COLUMN_NAME_EFFECTIVE_SEQ + "," +
+                COLUMN_NAME_HEAD + "," +
+                " CASE WHEN LENGTH(" + COLUMN_NAME_CONTENT + ") > " + MAX_INBAND_CONTENT_SIZE + " THEN" +
+                " SUBSTR(" + COLUMN_NAME_CONTENT + ", 1, " + MAX_INBAND_CONTENT_SIZE + ") ELSE " + COLUMN_NAME_CONTENT +
+                " END AS " + COLUMN_NAME_CONTENT +
+                " FROM " + TABLE_NAME + " WHERE _id=" + msgId, null);
     }
 
     /**
@@ -438,9 +477,25 @@ public class MessageDb implements BaseColumns {
      * @return cursor with the message (close after use!).
      */
     static Cursor getMessageBySeq(SQLiteDatabase db, long topicId, int effSeq) {
-        return db.rawQuery("SELECT * FROM " + TABLE_NAME +
-                    " WHERE " + COLUMN_NAME_TOPIC_ID + "=" + topicId + " AND " +
-                    COLUMN_NAME_EFFECTIVE_SEQ + "=" + effSeq, null);
+        return db.rawQuery("SELECT " +
+                _ID + "," +
+                COLUMN_NAME_TOPIC_ID + "," +
+                COLUMN_NAME_USER_ID + "," +
+                COLUMN_NAME_STATUS + "," +
+                COLUMN_NAME_SENDER + "," +
+                COLUMN_NAME_TS + "," +
+                COLUMN_NAME_SEQ + "," +
+                COLUMN_NAME_HIGH + "," +
+                COLUMN_NAME_DEL_ID + "," +
+                COLUMN_NAME_REPLACES_SEQ + "," +
+                COLUMN_NAME_EFFECTIVE_TS + "," +
+                COLUMN_NAME_EFFECTIVE_SEQ + "," +
+                COLUMN_NAME_HEAD + "," +
+                " CASE WHEN LENGTH(" + COLUMN_NAME_CONTENT + ") > " + MAX_INBAND_CONTENT_SIZE + " THEN" +
+                " SUBSTR(" + COLUMN_NAME_CONTENT + ", 1, " + MAX_INBAND_CONTENT_SIZE + ") ELSE " + COLUMN_NAME_CONTENT +
+                " END AS " + COLUMN_NAME_CONTENT +
+                " WHERE " + COLUMN_NAME_TOPIC_ID + "=" + topicId + " AND " +
+                COLUMN_NAME_EFFECTIVE_SEQ + "=" + effSeq, null);
     }
 
     /**
@@ -448,7 +503,23 @@ public class MessageDb implements BaseColumns {
      * <a href="https://stackoverflow.com/a/2111420">See explanation here</a>
      */
     static Cursor getLatestMessages(SQLiteDatabase db) {
-        final String sql = "SELECT m1.*, t." + TopicDb.COLUMN_NAME_TOPIC + " AS topic" +
+        final String sql = "SELECT m1." + _ID + "," +
+                " m1." + COLUMN_NAME_TOPIC_ID + "," +
+                " m1." + COLUMN_NAME_USER_ID + "," +
+                " m1." + COLUMN_NAME_STATUS + "," +
+                " m1." + COLUMN_NAME_SENDER + "," +
+                " m1." + COLUMN_NAME_TS + "," +
+                " m1." + COLUMN_NAME_SEQ + "," +
+                " m1." + COLUMN_NAME_HIGH + "," +
+                " m1." + COLUMN_NAME_DEL_ID + "," +
+                " m1." + COLUMN_NAME_REPLACES_SEQ + "," +
+                " m1." + COLUMN_NAME_EFFECTIVE_TS + "," +
+                " m1." + COLUMN_NAME_EFFECTIVE_SEQ + "," +
+                " m1." + COLUMN_NAME_HEAD + "," +
+                " CASE WHEN LENGTH(m1." + COLUMN_NAME_CONTENT + ") > " + MAX_INBAND_CONTENT_SIZE + " THEN" +
+                    " SUBSTR(m1." + COLUMN_NAME_CONTENT + ", 1, " + MAX_INBAND_CONTENT_SIZE + ") ELSE m1." + COLUMN_NAME_CONTENT +
+                    " END AS " + COLUMN_NAME_CONTENT + "," +
+                " t." + TopicDb.COLUMN_NAME_TOPIC + " AS topic" +
                 " FROM " + TABLE_NAME + " AS m1" +
                 " LEFT JOIN " + TABLE_NAME + " AS m2" +
                     " ON (m1." + COLUMN_NAME_TOPIC_ID + "=m2." + COLUMN_NAME_TOPIC_ID +

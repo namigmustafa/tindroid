@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
+import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
@@ -64,8 +64,8 @@ public class AccHelpFragment extends Fragment {
                 ((ChatsActivity) activity).showFragment(ChatsActivity.FRAGMENT_ACC_ABOUT, null));
 
         fragment.findViewById(R.id.ossLicenses).setOnClickListener(v -> {
-            activity.startActivity(new Intent(activity, OssLicensesMenuActivity.class));
             OssLicensesMenuActivity.setActivityTitle(getString(R.string.licenses));
+            activity.startActivity(new Intent(activity, OssLicensesMenuActivity.class));
         });
 
         return fragment;

@@ -21,7 +21,7 @@ import co.tinode.tindroid.R;
  * clickable images jumping left.
  * <p>
  * Correctly identifies URL bounds.
- * LinkMovementMethod registers a click made outside of the URL's bounds
+ * LinkMovementMethod registers a click made outside the URL's bounds
  * if there is no more text in that direction.
  */
 public class StableLinkMovementMethod extends LinkMovementMethod {

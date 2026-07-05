@@ -55,7 +55,7 @@
     </style>
 
     <!--suppress CheckTagEmptyBody. This is required by the component.
-    Otherwise it won't compile. -->
+    Otherwise, it won't compile. -->
     <style name="LicensesTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -72,23 +72,23 @@
     </style>
 
     <style name="textPrimarySmall" parent="@android:style/TextAppearance.Small">
-        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="textPrimary" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="textPrimaryLarge" parent="@android:style/TextAppearance.Large">
-        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="textSecondary" parent="@android:style/TextAppearance.Medium">
-        <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
     <style name="textSecondarySmall" parent="@android:style/TextAppearance.Small">
-        <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
     <style name="sectionTitleStyle" parent="@android:style/TextAppearance.Medium">
@@ -100,8 +100,8 @@
     </style>
 
     <style name="ProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
-        <item name="android:minHeight">12dip</item>
-        <item name="background">@color/colorChipBackground</item>
+        <item name="android:minHeight">12dp</item>
+        <item name="android:background">@color/colorChipBackground</item>
     </style>
 
     <style name="ToolbarSubtitleAppearance" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">

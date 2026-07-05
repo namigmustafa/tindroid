@@ -3,7 +3,6 @@ package co.tinode.tindroid;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,10 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.android.flexbox.FlexboxLayout;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -35,9 +31,7 @@ import co.tinode.tindroid.widgets.PhoneEdit;
 import co.tinode.tinodesdk.FndTopic;
 import co.tinode.tinodesdk.MeTopic;
 import co.tinode.tinodesdk.PromisedReply;
-import co.tinode.tinodesdk.Tinode;
 import co.tinode.tinodesdk.model.Credential;
-import co.tinode.tinodesdk.model.MsgSetMeta;
 import co.tinode.tinodesdk.model.ServerMessage;
 
 /**
@@ -76,8 +70,10 @@ public class AccPersonalFragment extends Fragment
         }
 
         Toolbar toolbar = activity.findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.general);
-        toolbar.setNavigationOnClickListener(v -> activity.getSupportFragmentManager().popBackStack());
+        if (toolbar != null) {
+            toolbar.setTitle(R.string.general);
+            toolbar.setNavigationOnClickListener(v -> activity.getSupportFragmentManager().popBackStack());
+        }
 
         return fragment;
     }
@@ -91,42 +87,48 @@ public class AccPersonalFragment extends Fragment
 
     @Override
     public void onResume() {
+        super.onResume();
+
         final FragmentActivity activity = getActivity();
+        final View fragmentView = getView();
         final MeTopic<VxCard> me = Cache.getTinode().getMeTopic();
 
-        if (me == null || activity == null) {
+        if (me == null || activity == null || fragmentView == null) {
             return;
         }
 
         // Attach listeners to editable form fields.
 
-        activity.findViewById(R.id.uploadAvatar).setOnClickListener(v ->
-                new AttachmentPickerDialog.Builder()
-                        .setGalleryLauncher(mRequestAvatarLauncher)
-                        .setCameraPreviewLauncher(mThumbPhotoLauncher, mRequestPermissionsLauncher)
-                        .build()
-                        .show(getChildFragmentManager()));
+        View uploadAvatar = fragmentView.findViewById(R.id.uploadAvatar);
+        if (uploadAvatar != null) {
+            uploadAvatar.setOnClickListener(v ->
+                    new AttachmentPickerDialog.Builder()
+                            .setGalleryLauncher(mRequestAvatarLauncher)
+                            .setCameraPreviewLauncher(mThumbPhotoLauncher, mRequestPermissionsLauncher)
+                            .build()
+                            .show(getChildFragmentManager()));
+        }
 
-        final TextView alias = activity.findViewById(R.id.alias);
-        alias.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+        final TextView alias = fragmentView.findViewById(R.id.alias);
+        if (alias != null) {
+            alias.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                alias.setError(UiUtils.validateAlias(activity, mAliasChecker, s.toString()));
-            }
-        });
+                @Override
+                public void afterTextChanged(Editable s) {
+                    alias.setError(UiUtils.validateAlias(activity, mAliasChecker, s.toString()));
+                }
+            });
+        }
 
         // Assign initial form values.
         updateFormValues(activity, me);
-
-        super.onResume();
     }
 
     @Override
@@ -224,7 +226,7 @@ public class AccPersonalFragment extends Fragment
                 if (phone == null) {
                     fragmentView.findViewById(R.id.phoneWrapper).setVisibility(View.GONE);
                 } else {
-                    activity.findViewById(R.id.phoneWrapper).setVisibility(View.VISIBLE);
+                    fragmentView.findViewById(R.id.phoneWrapper).setVisibility(View.VISIBLE);
                     TextView phoneField = fragmentView.findViewById(R.id.phone);
                     phoneField.setText(PhoneEdit.formatIntl(phone.val));
                     if (phone2 != null && phone2.isDone()) {
@@ -278,18 +280,24 @@ public class AccPersonalFragment extends Fragment
                 }
             }
 
-            VxCard pub = me.getPub();
-            UiUtils.setAvatar(fragmentView.findViewById(R.id.imageAvatar), pub, Cache.getTinode().getMyId(), false);
-            if (pub != null) {
-                fn = pub.fn;
-                description = pub.note;
-            }
+            UiUtils.setAvatar(fragmentView.findViewById(R.id.imageAvatar), me.getPub(), Cache.getTinode().getMyId(), false);
+            fn = me.getPub() != null ? me.getPub().fn : null;
+            description = me.getPub() != null ? me.getPub().note : null;
 
-            ((TextView) activity.findViewById(R.id.alias)).setText(me.alias());
+            TextView aliasField = fragmentView.findViewById(R.id.alias);
+            if (aliasField != null) {
+                aliasField.setText(me.alias());
+            }
         }
 
-        ((TextView) fragmentView.findViewById(R.id.topicTitle)).setText(fn);
-        ((TextView) fragmentView.findViewById(R.id.topicDescription)).setText(description);
+        final TextView topicTitle = fragmentView.findViewById(R.id.topicTitle);
+        if (topicTitle != null) {
+            topicTitle.setText(fn);
+        }
+        final TextView topicDescription = fragmentView.findViewById(R.id.topicDescription);
+        if (topicDescription != null) {
+            topicDescription.setText(description);
+        }
     }
 
     private void showEditCredential(View view) {
@@ -338,10 +346,19 @@ public class AccPersonalFragment extends Fragment
             if (activity.isFinishing() || activity.isDestroyed()) {
                 return false;
             }
+            final View fragmentView = getView();
             final MeTopic<VxCard> me = Cache.getTinode().getMeTopic();
-            String title = ((TextView) activity.findViewById(R.id.topicTitle)).getText().toString().trim();
-            String description = ((TextView) activity.findViewById(R.id.topicDescription)).getText().toString().trim();
-            String alias = ((TextView) activity.findViewById(R.id.alias)).getText().toString().trim();
+            if (fragmentView == null || me == null) {
+                return false;
+            }
+
+            TextView titleField = fragmentView.findViewById(R.id.topicTitle);
+            TextView descriptionField = fragmentView.findViewById(R.id.topicDescription);
+            TextView aliasField = fragmentView.findViewById(R.id.alias);
+
+            String title = titleField != null ? titleField.getText().toString().trim() : null;
+            String description = descriptionField != null ? descriptionField.getText().toString().trim() : null;
+            String alias = aliasField != null ? aliasField.getText().toString().trim() : null;
 
             UiUtils.updateTopicDesc(me, title, null, description, alias)
                     .thenApply(new PromisedReply.SuccessListener<>() {
@@ -366,7 +383,12 @@ public class AccPersonalFragment extends Fragment
             if (activity.isFinishing() || activity.isDestroyed()) {
                 return;
             }
-            activity.runOnUiThread(() -> ((TextView) fv.findViewById(R.id.alias)).setError(error));
+            activity.runOnUiThread(() -> {
+                TextView aliasField = fv.findViewById(R.id.alias);
+                if (aliasField != null) {
+                    aliasField.setError(error);
+                }
+            });
         }
     }
 

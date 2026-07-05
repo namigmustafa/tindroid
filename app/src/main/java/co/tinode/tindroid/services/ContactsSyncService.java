@@ -14,7 +14,7 @@ import android.os.IBinder;
  * <p>
  * For performance, only one sync adapter will be initialized within this application's context.
  * <p>
- * Note: The SyncService itself is not notified when a new sync occurs. It's role is to
+ * Note: The SyncService itself is not notified when a new sync occurs. Its role is to
  * manage the lifecycle of our {@link ContactsSyncAdapter} and provide a handle to said SyncAdapter to the
  * OS on request.
  */

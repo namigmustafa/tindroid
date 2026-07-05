@@ -93,7 +93,7 @@ public interface Storage {
     Message msgSend(Topic topic, Drafty data, Map<String, Object> head);
 
     /**
-     * Save message to database as a draft. Draft will not be sent to server until it status changes.
+     * Save message to database as a draft. Draft will not be sent to server until its status changes.
      *
      * @param topic topic which sent the message
      * @param data message data to save
@@ -289,7 +289,7 @@ public interface Storage {
         /** Get current message unique ID (database ID) */
         long getDbId();
 
-        /** Get Tinode seq Id of the message (different from database ID */
+        /** Get Tinode seq ID of the message (different from database ID) */
         int getSeqId();
 
         /** Get delivery status */

@@ -33,8 +33,8 @@ public class LetterTileDrawable extends Drawable {
     /**
      * Letter tile
      */
-    private static TypedArray sColorsLight;
-    private static TypedArray sColorsDark;
+    private static int[] sColorCacheLight;
+    private static int[] sColorCacheDark;
     private static int sDefaultColorLight;
     private static int sDefaultColorDark;
     private static int sSelfBackgroundColor;
@@ -55,9 +55,21 @@ public class LetterTileDrawable extends Drawable {
 
     public LetterTileDrawable(final Context context) {
         Resources res = context.getResources();
-        if (sColorsLight == null) {
-            sColorsLight = res.obtainTypedArray(R.array.letter_tile_colors_light);
-            sColorsDark = res.obtainTypedArray(R.array.letter_tile_colors_dark);
+        if (sColorCacheLight == null) {
+            TypedArray colorsLight = res.obtainTypedArray(R.array.letter_tile_colors_light);
+            sColorCacheLight = new int[colorsLight.length()];
+            for (int i = 0; i < colorsLight.length(); i++) {
+                sColorCacheLight[i] = colorsLight.getColor(i, 0);
+            }
+            colorsLight.recycle();
+
+            TypedArray colorsDark = res.obtainTypedArray(R.array.letter_tile_colors_dark);
+            sColorCacheDark = new int[colorsDark.length()];
+            for (int i = 0; i < colorsDark.length(); i++) {
+                sColorCacheDark[i] = colorsDark.getColor(i, 0);
+            }
+            colorsDark.recycle();
+
             sDefaultColorLight = res.getColor(R.color.letter_tile_bg_color_light, null);
             sDefaultColorDark = res.getColor(R.color.letter_tile_bg_color_dark, null);
             sSelfBackgroundColor = res.getColor(R.color.letter_tile_self_bg_color, null);
@@ -302,8 +314,8 @@ public class LetterTileDrawable extends Drawable {
             return color;
         }
 
-        TypedArray colors = ct == ContactType.PERSON ? sColorsDark : sColorsLight;
-        return colors.getColor(hashCode % colors.length(), color);
+        int[] colors = ct == ContactType.PERSON ? sColorCacheDark : sColorCacheLight;
+        return colors != null ? colors[hashCode % colors.length] : color;
     }
 
     /**

@@ -272,7 +272,7 @@ class ContactsSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (!newHash.equals(oldHash)) {
                 // If the query has changed, clear the sync marker for a full sync.
-                // Otherwise we only going to get updated contacts.
+                // Otherwise, we are only going to get updated contacts.
                 lastSyncMarker = null;
                 setServerQueryHash(account, newHash);
             }
@@ -288,7 +288,7 @@ class ContactsSyncAdapter extends AbstractThreadedSyncAdapter {
                 // It will throw if something is wrong so we will try again later.
                 tinode.loginToken(token).getResult();
 
-                // It throws if rejected and we just fail to sync.
+                // It throws if rejected, and we just fail to sync.
                 // FND sends no presence notifications thus background flag is not needed.
                 tinode.subscribe(Tinode.TOPIC_FND, null, null).getResult();
 

@@ -235,7 +235,7 @@ public class TindroidApp extends Application implements DefaultLifecycleObserver
             @Override
             public void onReceive(Context context, Intent intent) {
                 String token = intent.getStringExtra("token");
-                if (token != null && !token.isEmpty()) {
+                if (token != null) {
                     Cache.getTinode().setDeviceToken(token);
                 }
             }
@@ -475,7 +475,8 @@ public class TindroidApp extends Application implements DefaultLifecycleObserver
                 Log.e(TAG, "Failure to login with saved account", e);
             }
 
-            // Must instantiate tinode cache even if token == null. Otherwise logout won't work.
+            // Must instantiate tinode cache even if token == null.
+            // Otherwise, logout won't work.
             final Tinode tinode = Cache.getTinode();
             if (!TextUtils.isEmpty(token) && expires != null && expires.after(new Date())) {
                 // Connecting with synchronous calls because this is not the UI thread.

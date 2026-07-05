@@ -16,7 +16,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
 import co.tinode.tindroid.Const;
-import co.tinode.tindroid.UiUtils;
 
 import co.tinode.tindroid.UtilsBitmap;
 import coil.Coil;

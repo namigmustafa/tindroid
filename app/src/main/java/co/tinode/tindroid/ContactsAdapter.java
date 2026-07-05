@@ -53,7 +53,7 @@ class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder>
 
         // Loads a string containing the English alphabet. To fully localize the app, provide a
         // strings.xml file in res/values-<x> directories, where <x> is a locale. In the file,
-        // define a string with android:name="alphabet" and contents set to all of the
+        // define a string with android:name="alphabet" and contents set to all the
         // alphabetic characters in the language in their proper sort order, in upper case if
         // applicable.
         final String alphabet = context.getString(R.string.alphabet);

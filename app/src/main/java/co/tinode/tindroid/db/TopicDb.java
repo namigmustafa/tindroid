@@ -577,7 +577,7 @@ public class TopicDb implements BaseColumns {
     }
 
     /**
-     * Given topic name, get it's database _id
+     * Given topic name, get its database _id
      *
      * @param db    database
      * @param topic topic name

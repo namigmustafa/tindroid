@@ -90,7 +90,7 @@ public class SignUpFragment extends Fragment
                     setCameraPreviewLauncher(mThumbTakePhotoLauncher, mRequestCameraPermissionLauncher).
                     build().
                     show(getChildFragmentManager()));
-        // Handle click on the sign up button.
+        // Handle click on the sign-up button.
         fragment.findViewById(R.id.signUp).setOnClickListener(this);
 
         return fragment;
@@ -248,7 +248,7 @@ public class SignUpFragment extends Fragment
             ((EditText) parent.findViewById(R.id.fullName)).setError(getText(R.string.full_name_required));
             return;
         }
-        // Make sure user name is not too long.
+        // Make sure username is not too long.
         final String fullName;
         if (fn.length() > Const.MAX_TITLE_LENGTH) {
             fullName = fn.substring(0, Const.MAX_TITLE_LENGTH);
@@ -313,7 +313,7 @@ public class SignUpFragment extends Fragment
                                 // Remove used avatar from the view model.
                                 new ViewModelProvider(parent).get(AvatarViewModel.class).clear();
 
-                                // Flip back to login screen on success;
+                                // Flip back to log in screen on success;
                                 parent.runOnUiThread(() -> {
                                     if (msg.ctrl.code >= 300 && msg.ctrl.text.contains("validate credentials")) {
                                         signUp.setEnabled(true);

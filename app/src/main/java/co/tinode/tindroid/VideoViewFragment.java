@@ -71,7 +71,7 @@ public class VideoViewFragment extends Fragment implements MenuProvider {
     private static final int DEFAULT_HEIGHT = 480;
 
     // Max size of the video and poster bitmap to be sent as byte array.
-    // Otherwise write to temp file.
+    // Otherwise, write to temp file.
     private static final int MAX_POSTER_BYTES = 1024 * 3; // 3K.
     private static final int MAX_VIDEO_BYTES = 1024 * 4; // 4K.
 
@@ -245,7 +245,9 @@ public class VideoViewFragment extends Fragment implements MenuProvider {
                 mExoPlayer.setPlayWhenReady(true);
                 initialized = true;
             } else {
-                final byte[] bits = args.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
+                Bundle cached = Cache.getDataBundle(args.getString("cache_id"), false);
+                Bundle source = cached != null ? cached : args;
+                final byte[] bits = source.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
                 if (bits != null) {
                     try {
                         File temp = File.createTempFile("VID_" + System.currentTimeMillis(),
@@ -307,7 +309,9 @@ public class VideoViewFragment extends Fragment implements MenuProvider {
             }
 
             Uri ref = args.getParcelable(AttachmentHandler.ARG_REMOTE_URI);
-            byte[] bits = args.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
+            Bundle cached = Cache.getDataBundle(args.getString("cache_id"), false);
+            Bundle source = cached != null ? cached : args;
+            byte[] bits = source.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
             AttachmentHandler.enqueueDownloadAttachment(activity, ref != null ? ref.toString() : null,
                     bits, filename, mime);
             return true;
@@ -318,7 +322,9 @@ public class VideoViewFragment extends Fragment implements MenuProvider {
 
     private void loadPoster(Activity activity, final Bundle args, boolean initialized) {
         // Check if bitmap is attached as an array of bytes (received).
-        byte[] bits = args.getByteArray(AttachmentHandler.ARG_PREVIEW);
+        Bundle cached = Cache.getDataBundle(args.getString("cache_id"), false);
+        Bundle source = cached != null ? cached : args;
+        byte[] bits = source.getByteArray(AttachmentHandler.ARG_PREVIEW);
         if (bits != null) {
             Bitmap bmp = BitmapFactory.decodeByteArray(bits, 0, bits.length);
             mPosterView.setImageDrawable(new BitmapDrawable(getResources(), bmp));
@@ -402,7 +408,9 @@ public class VideoViewFragment extends Fragment implements MenuProvider {
         outputArgs.putParcelable(AttachmentHandler.ARG_LOCAL_URI,
                 inputArgs.getParcelable(AttachmentHandler.ARG_LOCAL_URI));
 
-        final byte[] videoBits = inputArgs.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
+        Bundle cached = Cache.getDataBundle(inputArgs.getString("cache_id"), false);
+        Bundle source = cached != null ? cached : inputArgs;
+        final byte[] videoBits = source.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
         if (videoBits != null) {
             if (videoBits.length > MAX_VIDEO_BYTES) {
                 MimeTypeMap mime = MimeTypeMap.getSingleton();
