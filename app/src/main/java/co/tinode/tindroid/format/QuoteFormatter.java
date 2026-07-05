@@ -2,7 +2,6 @@ package co.tinode.tindroid.format;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.RectF;
@@ -35,7 +34,6 @@ public class QuoteFormatter extends PreviewFormatter {
     private static final int IMAGE_PADDING = 2; //dip
     private static final int MAX_FILE_NAME_LENGTH = 16;
 
-    private static TypedArray sColorsDark;
     private static int sTextColor;
 
     private final View mParent;
@@ -45,10 +43,7 @@ public class QuoteFormatter extends PreviewFormatter {
 
         mParent = parent;
         Resources res = parent.getResources();
-        if (sColorsDark == null) {
-            sColorsDark = res.obtainTypedArray(R.array.letter_tile_colors_dark);
-            sTextColor = res.getColor(R.color.colorReplyText, null);
-        }
+        sTextColor = res.getColor(R.color.colorReplyText, null);
     }
 
     @Override
@@ -59,7 +54,7 @@ public class QuoteFormatter extends PreviewFormatter {
     @Override
     protected SpannableStringBuilder handleMention(Context ctx, List<SpannableStringBuilder> content,
                                                    Map<String, Object> data) {
-        return FullFormatter.handleMention_Impl(content, data);
+        return FullFormatter.handleMention_Impl(ctx, content, data);
     }
 
     private static class ImageDim {

@@ -53,17 +53,32 @@ public class FBaseMessagingService extends FirebaseMessagingService {
     private static final int MAX_MESSAGE_LENGTH = 80;
 
     @Override
-    public void onNewToken(@NonNull final String refreshedToken) {
-        super.onNewToken(refreshedToken);
-        Log.d(TAG, "Refreshed token: " + refreshedToken);
+    public void onNewToken(@NonNull final String token) {
+        super.onNewToken(token);
+        Log.d(TAG, "New registration token: " + token);
+        broadcastToken(token);
+    }
 
+    @Override
+    public void onRegistered(@NonNull final String installationId) {
+        super.onRegistered(installationId);
+        Log.d(TAG, "Registered FID: " + installationId);
+        broadcastToken(installationId);
+    }
+
+    @Override
+    public void onUnregistered(@NonNull final String installationId) {
+        super.onUnregistered(installationId);
+        Log.d(TAG, "Unregistered FID: " + installationId);
+        broadcastToken("");
+    }
+
+    private void broadcastToken(String token) {
         // Send token to the server.
         LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
         Intent intent = new Intent("FCM_REFRESH_TOKEN");
-        intent.putExtra("token", refreshedToken);
+        intent.putExtra("token", token);
         lbm.sendBroadcast(intent);
-
-        // The token is currently retrieved in co.tinode.tindroid.Cache.
     }
 
     @Override

@@ -19,8 +19,6 @@ import co.tinode.tindroid.account.Utils;
  * Authenticator service: make Tinode login work nicely with the Android authentication system.
  */
 public class TinodeAccountService extends Service {
-    private static final String TAG = "TinodeAccountService";
-
     private Authenticator mAuthenticator;
 
     @Override

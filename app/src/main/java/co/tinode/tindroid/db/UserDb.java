@@ -186,7 +186,7 @@ public class UserDb implements BaseColumns {
     }
 
     /**
-     * Given UID, get it's database _id
+     * Given UID, get its database _id
      *
      * @param db  database
      * @param uid UID

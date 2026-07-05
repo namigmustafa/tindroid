@@ -118,7 +118,7 @@ public class CircleProgressView extends AppCompatImageView {
 
     /**
      * Hide the progress view if it's visible. The progress view will not be
-     * hidden until it has been shown for at least a minimum show time. If the
+     * hidden until it has been shown for at least a minimum showtime. If the
      * progress view was not yet visible, cancels showing the progress view.
      */
     public synchronized void hide() {
@@ -134,7 +134,7 @@ public class CircleProgressView extends AppCompatImageView {
             }
         } else if (!mPostedHide) {
             // The progress spinner is shown, but not long enough,
-            // so post a delayed message to hide it when its been shown long enough.
+            // so post a delayed message to hide it when it's been shown long enough.
             mPostedHide = true;
             postDelayed(mDelayedHide, MIN_SHOW_TIME - diff);
         }

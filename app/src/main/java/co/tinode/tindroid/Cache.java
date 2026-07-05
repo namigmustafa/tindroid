@@ -2,15 +2,18 @@ package co.tinode.tindroid;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.os.Bundle;
 import android.telecom.CallAudioState;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,6 +51,8 @@ public class Cache {
     private volatile CallInProgress mCallInProgress = null;
 
     private boolean mFCMTokenRequested = false;
+
+    private final Map<String, Bundle> mDataBundles = new HashMap<>();
 
     @SuppressLint("UnsafeOptInUsageError")
     public static synchronized Tinode getTinode() {
@@ -143,29 +148,11 @@ public class Cache {
             //noinspection ConstantConditions: Google lies about getInstance not returning null.
             if (fbId != null) {
                 sInstance.mFCMTokenRequested = true;
-                fbId.getToken().addOnCompleteListener(task -> {
+                fbId.register().addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         // Retry to fetch token later.
                         sInstance.mFCMTokenRequested = false;
-                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                        return;
-                    }
-                    String token = task.getResult();
-                    if (sInstance.mTinode != null) {
-                        sInstance.mTinode.setDeviceToken(token)
-                                .thenCatch(new PromisedReply.FailureListener<>() {
-                                    @Override
-                                    public <E extends Exception> PromisedReply<ServerMessage> onFailure(E err) {
-                                        String message = err.getMessage();
-                                        if (TextUtils.isEmpty(message)) {
-                                            message = err.getClass().getName();
-                                        }
-                                        Log.w(TAG, "Failed to update FCM token: " + message);
-                                        return null;
-                                    }
-                                });
-                    } else {
-                        Log.w(TAG, "Unable to report FCM token to server: not initialized");
+                        Log.w(TAG, "FCM registration failed", task.getException());
                     }
                 });
             } else {
@@ -179,11 +166,12 @@ public class Cache {
     static void invalidate() {
         endCallInProgress();
         setSelectedTopicName(null);
+        clearDataBundles();
         if (sInstance.mTinode != null) {
             sInstance.mTinode.logout();
             sInstance.mTinode = null;
         }
-        FirebaseMessaging.getInstance().deleteToken();
+        FirebaseMessaging.getInstance().unregister();
     }
 
     public static CallInProgress getCallInProgress() {
@@ -266,6 +254,25 @@ public class Cache {
     // Save the new topic name.
     public static void setSelectedTopicName(String topicName) {
         sInstance.mTopicSelected = topicName;
+    }
+
+    public static String putDataBundle(Bundle bundle, String id) {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+        sInstance.mDataBundles.put(id, bundle);
+        return id;
+    }
+
+    public static Bundle getDataBundle(String id, boolean consume) {
+        if (id == null) {
+            return null;
+        }
+        return consume ? sInstance.mDataBundles.remove(id) : sInstance.mDataBundles.get(id);
+    }
+
+    public static void clearDataBundles() {
+        sInstance.mDataBundles.clear();
     }
 
     // Connect to 'me' topic.

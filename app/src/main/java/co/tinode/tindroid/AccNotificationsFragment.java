@@ -26,8 +26,6 @@ import co.tinode.tinodesdk.model.ServerMessage;
  * Fragment for editing current user details.
  */
 public class AccNotificationsFragment extends Fragment implements ChatsActivity.FormUpdatable {
-    private static final String TAG = "AccNotificationsFrag";
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

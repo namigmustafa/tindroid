@@ -74,7 +74,7 @@ public class FullFormatter extends AbstractDraftyFormatter<SpannableStringBuilde
 
     private static final int MIN_AUDIO_PREVIEW_LENGTH = 16;
 
-    private static TypedArray sColorsDark;
+    private static int[] sColorCache;
     private static int sDefaultColor;
 
     private final TextView mContainer;
@@ -94,8 +94,17 @@ public class FullFormatter extends AbstractDraftyFormatter<SpannableStringBuilde
         mQuoteFormatter = null;
 
         Resources res = container.getResources();
-        if (sColorsDark == null) {
-            sColorsDark = res.obtainTypedArray(R.array.letter_tile_colors_dark);
+        initColors(res);
+    }
+
+    private static void initColors(Resources res) {
+        if (sColorCache == null) {
+            TypedArray colors = res.obtainTypedArray(R.array.letter_tile_colors_dark);
+            sColorCache = new int[colors.length()];
+            for (int i = 0; i < colors.length(); i++) {
+                sColorCache[i] = colors.getColor(i, 0);
+            }
+            colors.recycle();
             sDefaultColor = res.getColor(R.color.grey, null);
         }
     }
@@ -170,10 +179,10 @@ public class FullFormatter extends AbstractDraftyFormatter<SpannableStringBuilde
         return null;
     }
 
-    static SpannableStringBuilder handleMention_Impl(List<SpannableStringBuilder> content, Map<String, Object> data) {
+    static SpannableStringBuilder handleMention_Impl(Context ctx, List<SpannableStringBuilder> content, Map<String, Object> data) {
         int color = sDefaultColor;
         if (data != null) {
-            color = colorMention(getStringVal("val", data, ""));
+            color = colorMention(ctx, getStringVal("val", data, ""));
         }
 
         return assignStyle(new ForegroundColorSpan(color), content);
@@ -181,13 +190,16 @@ public class FullFormatter extends AbstractDraftyFormatter<SpannableStringBuilde
 
     @Override
     protected SpannableStringBuilder handleMention(Context ctx, List<SpannableStringBuilder> content, Map<String, Object> data) {
-        return handleMention_Impl(content, data);
+        return handleMention_Impl(ctx, content, data);
     }
 
-    private static int colorMention(String uid) {
-        return TextUtils.isEmpty(uid) ?
+    private static int colorMention(Context ctx, String uid) {
+        if (sColorCache == null && ctx != null) {
+            initColors(ctx.getResources());
+        }
+        return TextUtils.isEmpty(uid) || sColorCache == null ?
                 sDefaultColor :
-                sColorsDark.getColor(Math.abs(uid.hashCode()) % sColorsDark.length(), sDefaultColor);
+                sColorCache[Math.abs(uid.hashCode()) % sColorCache.length];
     }
 
     @Override
@@ -555,7 +567,7 @@ public class FullFormatter extends AbstractDraftyFormatter<SpannableStringBuilde
 
         SpannableStringBuilder result;
         if (span == null) {
-            // If the poster cannot be decoded for whatever reason, just show show a uniform gray background
+            // If the poster cannot be decoded for whatever reason, just show a uniform gray background
             // with play control on top.
             Drawable drawable = UiUtils.getPlaceholder(ctx, null, null, dim.scaledWidth, dim.scaledHeight);
             if (overlay != null) {

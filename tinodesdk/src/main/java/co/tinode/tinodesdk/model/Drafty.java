@@ -268,11 +268,11 @@ public class Drafty implements Serializable {
             // Keep spans which start after the end of the previous span or those which
             // are complete within the previous span.
             if (curr.start > last.end) {
-                // Span is completely outside of the previous span.
+                // Span is completely outside the previous span.
                 tree.add(curr);
                 last = curr;
             } else if (curr.end < last.end) {
-                // Span is fully inside of the previous span. Push to subnode.
+                // Span is fully inside the previous span. Push to subnode.
                 if (last.children == null) {
                     last.children = new ArrayList<>();
                 }
@@ -476,7 +476,7 @@ public class Drafty implements Serializable {
     /**
      * Extract attachment references for use in message header.
      *
-     * @return string array of attachment references or null if no attachments with references found.
+     * @return string array of attachment references or null if no attachments with references are found.
      */
     @JsonIgnore
     public String[] getEntReferences() {
@@ -983,9 +983,9 @@ public class Drafty implements Serializable {
     }
 
     /**
-     * Check if given content-type is a mime type of a drafty form response.
+     * Check if given content-type is a mime type of drafty form response.
      * @param mimeType content type to check.
-     * @return true if content-type is a mime type of a drafty form response, false otherwise.
+     * @return true if content-type is a mime type of drafty form response, false otherwise.
      */
     public static boolean isFormResponseType(Object mimeType) {
         return DRAFTY_FR_TYPE.equals(mimeType) || DRAFTY_FR_TYPE_LEGACY.equals(mimeType);
@@ -1016,9 +1016,9 @@ public class Drafty implements Serializable {
     }
 
     /**
-     * Mostly for testing: convert Drafty to a markdown string.
+     * Mostly for testing: convert Drafty to a Markdown string.
      * @param plainLink links should be written as plain text, without any formatting.
-     * @return Drafty as markdown-formatted string; elements not representable as markdown are converted to plain text.
+     * @return Drafty as markdown-formatted string; elements not representable as Markdown are converted to plain text.
      */
     public String toMarkdown(boolean plainLink) {
         return format(new Formatter<>() {
@@ -1551,7 +1551,7 @@ public class Drafty implements Serializable {
      *  - Strip entities of heavy content.
      *  - Move attachments to the end of the document.
      *
-     * @param length- length in characters to shorten to.
+     * @param length - length in characters to shorten to.
      * @param maxAttachments - maximum number of attachments to keep.
      * @return converted Drafty object leaving the original intact.
      */

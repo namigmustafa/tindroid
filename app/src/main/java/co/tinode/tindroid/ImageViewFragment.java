@@ -1,7 +1,6 @@
 package co.tinode.tindroid;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,10 +36,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 
 import co.tinode.tindroid.widgets.OverlaidImageView;
@@ -69,7 +68,7 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
 
     // Maximum count of pixels in a zoomed image: width * height * scale^2.
     private static final int MAX_SCALED_PIXELS = 1024 * 1024 * 12;
-    // How much bigger any image dimension is allowed to be compare to the screen size.
+    // How much bigger any image dimension is allowed to be compared to the screen size.
     private static final float MAX_SCALE_FACTOR = 8f;
 
     // The matrix actually used for scaling.
@@ -99,11 +98,6 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final Activity activity = getActivity();
-        if (activity == null) {
-            return null;
-        }
-
         View view = inflater.inflate(R.layout.fragment_view_image, container, false);
         mMatrix = new Matrix();
         mImageView = view.findViewById(R.id.image);
@@ -131,7 +125,7 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
                 return true;
             }
         };
-        mGestureDetector = new GestureDetector(activity, listener);
+        mGestureDetector = new GestureDetector(view.getContext(), listener);
 
         ScaleGestureDetector.OnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
@@ -173,7 +167,7 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
                 return true;
             }
         };
-        mScaleGestureDetector = new ScaleGestureDetector(activity, scaleListener);
+        mScaleGestureDetector = new ScaleGestureDetector(view.getContext(), scaleListener);
 
         view.setOnTouchListener((v, event) -> {
             if (mWorkingMatrix == null) {
@@ -204,9 +198,9 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
     public void onResume() {
         super.onResume();
 
-        final Activity activity = requireActivity();
+        final FragmentActivity activity = getActivity();
         final Bundle args = getArguments();
-        if (args == null) {
+        if (activity == null || args == null) {
             return;
         }
 
@@ -248,13 +242,15 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
         });
     }
 
-    private void loadImage(final Activity activity, final Bundle args) {
+    private void loadImage(final FragmentActivity activity, final Bundle args) {
         // Check if the bitmap is directly attached.
         int length = 0;
         Bitmap preview = args.getParcelable(AttachmentHandler.ARG_SRC_BITMAP);
         if (preview == null) {
+            Bundle cached = Cache.getDataBundle(args.getString("cache_id"), false);
+            Bundle source = cached != null ? cached : args;
             // Check if bitmap is attached as an array of bytes (received).
-            byte[] bits = args.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
+            byte[] bits = source.getByteArray(AttachmentHandler.ARG_SRC_BYTES);
             if (bits != null) {
                 preview = BitmapFactory.decodeByteArray(bits, 0, bits.length);
                 length = bits.length;
@@ -309,8 +305,11 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
                     @Override
                     public void onSuccess(@NonNull Drawable drawable) {
                         mRemoteState = RemoteState.SUCCESS;
-                        Activity activity = requireActivity();
-                        if (activity.isFinishing() || activity.isDestroyed()) {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        final FragmentActivity activity = getActivity();
+                        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
                             return;
                         }
 
@@ -324,7 +323,10 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
                         mImageView.setScaleType(ImageView.ScaleType.MATRIX);
                         mImageView.enableOverlay(false);
 
-                        activity.findViewById(R.id.metaPanel).setVisibility(View.VISIBLE);
+                        View metaPanel = activity.findViewById(R.id.metaPanel);
+                        if (metaPanel != null) {
+                            metaPanel.setVisibility(View.VISIBLE);
+                        }
                         setupImagePostview(activity, args, bmp.getByteCount());
                     }
 
@@ -332,8 +334,13 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
                     public void onError(@Nullable Drawable drawable) {
                         mRemoteState = RemoteState.FAILED;
                         Log.w(TAG, "Failed to fetch image: " + ref);
-                        mImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                        ((MenuHost) activity).removeMenuProvider(ImageViewFragment.this);
+                        if (isAdded()) {
+                            mImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                            FragmentActivity activity = getActivity();
+                            if (activity != null) {
+                                activity.removeMenuProvider(ImageViewFragment.this);
+                            }
+                        }
                     }
                 });
                 Coil.imageLoader(activity).enqueue(rc.build());
@@ -351,7 +358,10 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
 
             mImageView.enableOverlay(mAvatarUpload);
 
-            activity.findViewById(R.id.metaPanel).setVisibility(View.VISIBLE);
+            View metaPanel = activity.findViewById(R.id.metaPanel);
+            if (metaPanel != null) {
+                metaPanel.setVisibility(View.VISIBLE);
+            }
 
             mInitialRect = new RectF(0, 0, bmp.getWidth(), bmp.getHeight());
             mWorkingRect = new RectF(mInitialRect);
@@ -391,8 +401,11 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
             mImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             mImageView.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
                             R.drawable.ic_broken_image, null));
-            activity.findViewById(R.id.metaPanel).setVisibility(View.INVISIBLE);
-            ((MenuHost) activity).removeMenuProvider(this);
+            View metaPanel = activity.findViewById(R.id.metaPanel);
+            if (metaPanel != null) {
+                metaPanel.setVisibility(View.INVISIBLE);
+            }
+            activity.removeMenuProvider(this);
         }
 
         mWorkingMatrix = new Matrix(mMatrix);
@@ -400,20 +413,29 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
     }
 
     // Setup fields for image preview.
-    private void setupImagePreview(final Activity activity) {
-        if (mAvatarUpload) {
-            activity.findViewById(R.id.acceptAvatar).setVisibility(View.VISIBLE);
-            activity.findViewById(R.id.sendImagePanel).setVisibility(View.GONE);
-        } else {
-            activity.findViewById(R.id.acceptAvatar).setVisibility(View.GONE);
-            activity.findViewById(R.id.sendImagePanel).setVisibility(View.VISIBLE);
+    private void setupImagePreview(final FragmentActivity activity) {
+        View view = getView();
+        if (view == null) {
+            return;
         }
-        activity.findViewById(R.id.annotation).setVisibility(View.GONE);
-        ((MenuHost) activity).removeMenuProvider(this);
+        if (mAvatarUpload) {
+            view.findViewById(R.id.acceptAvatar).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.sendImagePanel).setVisibility(View.GONE);
+        } else {
+            view.findViewById(R.id.acceptAvatar).setVisibility(View.GONE);
+            view.findViewById(R.id.sendImagePanel).setVisibility(View.VISIBLE);
+        }
+        view.findViewById(R.id.annotation).setVisibility(View.GONE);
+        activity.removeMenuProvider(this);
     }
 
     // Setup fields for viewing downloaded image
-    private void setupImagePostview(final Activity activity, Bundle args, long length) {
+    private void setupImagePostview(final FragmentActivity activity, Bundle args, long length) {
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+
         String fileName = args.getString(AttachmentHandler.ARG_FILE_NAME);
         if (TextUtils.isEmpty(fileName)) {
             fileName = getResources().getString(R.string.tinode_image);
@@ -421,13 +443,13 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
 
         // The received image is viewed.
         String size = ((int) mInitialRect.width()) + " × " + ((int) mInitialRect.height()) + "; ";
-        activity.findViewById(R.id.sendImagePanel).setVisibility(View.GONE);
-        activity.findViewById(R.id.annotation).setVisibility(View.VISIBLE);
-        ((TextView) activity.findViewById(R.id.content_type)).setText(args.getString("mime"));
-        ((TextView) activity.findViewById(R.id.file_name)).setText(fileName);
-        ((TextView) activity.findViewById(R.id.image_size))
+        view.findViewById(R.id.sendImagePanel).setVisibility(View.GONE);
+        view.findViewById(R.id.annotation).setVisibility(View.VISIBLE);
+        ((TextView) view.findViewById(R.id.content_type)).setText(args.getString("mime"));
+        ((TextView) view.findViewById(R.id.file_name)).setText(fileName);
+        ((TextView) view.findViewById(R.id.image_size))
                 .setText(String.format("%s%s", size, UtilsString.bytesToHumanSize(length)));
-        ((MenuHost) activity).addMenuProvider(this, getViewLifecycleOwner(),
+        activity.addMenuProvider(this, getViewLifecycleOwner(),
                 Lifecycle.State.RESUMED);
     }
 
@@ -439,7 +461,10 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
 
     @Override
     public boolean onMenuItemSelected(@NonNull MenuItem item) {
-        final Activity activity = requireActivity();
+        final FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return false;
+        }
 
         if (item.getItemId() == R.id.action_download) {
             // Save image to Gallery.
@@ -465,8 +490,8 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
     }
 
     private void sendImage() {
-        final MessageActivity activity = (MessageActivity) requireActivity();
-        if (activity.isFinishing() || activity.isDestroyed()) {
+        final FragmentActivity fragmentActivity = getActivity();
+        if (!(fragmentActivity instanceof MessageActivity activity) || fragmentActivity.isFinishing() || fragmentActivity.isDestroyed()) {
             return;
         }
 
@@ -489,8 +514,8 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
     }
 
     private void acceptAvatar() {
-        final AppCompatActivity activity = (AppCompatActivity) getActivity();
-        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+        final FragmentActivity fragmentActivity = getActivity();
+        if (!(fragmentActivity instanceof AppCompatActivity activity) || fragmentActivity.isFinishing() || fragmentActivity.isDestroyed()) {
             return;
         }
 
@@ -524,7 +549,9 @@ public class ImageViewFragment extends Fragment implements MenuProvider {
 
         String topicName = args.getString(Const.INTENT_EXTRA_TOPIC);
         topicName = Tinode.parseTinodeUrl(topicName);
-        ((AvatarCompletionHandler) activity).onAcceptAvatar(topicName, bmp);
+        if (activity instanceof AvatarCompletionHandler) {
+            ((AvatarCompletionHandler) activity).onAcceptAvatar(topicName, bmp);
+        }
 
         activity.getSupportFragmentManager().popBackStack();
     }

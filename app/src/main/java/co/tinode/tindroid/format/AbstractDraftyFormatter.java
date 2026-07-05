@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import co.tinode.tindroid.R;
 import co.tinode.tinodesdk.model.Drafty;
 
+import org.jetbrains.annotations.Contract;
+
 public abstract class AbstractDraftyFormatter<T extends Spanned> implements Drafty.Formatter<T> {
     protected final Context mContext;
 
@@ -124,6 +126,7 @@ public abstract class AbstractDraftyFormatter<T extends Spanned> implements Draf
         return handlePlain(content);
     }
 
+    @Contract("null -> null; !null -> !null")
     protected static @Nullable SpannableStringBuilder join(List<SpannableStringBuilder> content) {
         SpannableStringBuilder ssb = null;
         if (content != null) {
@@ -136,6 +139,7 @@ public abstract class AbstractDraftyFormatter<T extends Spanned> implements Draf
         return ssb;
     }
 
+    @Contract("_, null -> null; _, !null -> !null")
     protected static @Nullable SpannableStringBuilder assignStyle(@NonNull Object style,
                                                                   List<SpannableStringBuilder> content) {
         SpannableStringBuilder ssb = join(content);

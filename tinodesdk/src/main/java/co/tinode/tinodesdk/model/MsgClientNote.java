@@ -19,7 +19,7 @@ public class MsgClientNote implements Serializable {
     public final Integer seq; // ID of the message being acknowledged, required for rcpt & read
 
     public final String event; // Event (set only when what="call")
-    public final Object payload; // Arbitrary json payload (set only when what="call")
+    public final Object payload; // Arbitrary JSON payload (set only when what="call")
 
     public MsgClientNote(String topic, String what, int seq) {
         this(topic, what, seq, null, null);

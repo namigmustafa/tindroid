@@ -52,7 +52,7 @@ public class UtilsBitmap {
      * Ensure that the bitmap is square and no larger than the given max size.
      * @param bmp       bitmap to scale
      * @param size   maximum linear size of the bitmap.
-     * @return scaled bitmap or original, it it does not need ot be cropped or scaled.
+     * @return scaled bitmap or original, it does not need ot be cropped or scaled.
      */
     @NonNull
     public static Bitmap scaleSquareBitmap(@NonNull Bitmap bmp, int size) {
@@ -93,7 +93,7 @@ public class UtilsBitmap {
      * @param maxWidth  maximum allowed bitmap width.
      * @param maxHeight maximum allowed bitmap height.
      * @param upscale enable increasing size of the image (up to 10x).
-     * @return scaled bitmap or original, it it does not need to be scaled.
+     * @return scaled bitmap or original, it does not need to be scaled.
      */
     @NonNull
     public static Bitmap scaleBitmap(@NonNull Bitmap bmp, final int maxWidth, final int maxHeight,

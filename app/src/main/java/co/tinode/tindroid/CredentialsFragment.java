@@ -134,7 +134,7 @@ public class CredentialsFragment extends Fragment implements MenuProvider, View.
                         }
                         parent.reportError(err, confirm, 0, R.string.failed_credential_confirmation);
                         // Something went wrong like a duplicate credential or expired token.
-                        // Go back to login, nothing we can do here.
+                        // Go back to log in, nothing we can do here.
                         parent.showFragment(LoginActivity.FRAGMENT_LOGIN, null);
                         return null;
                     }

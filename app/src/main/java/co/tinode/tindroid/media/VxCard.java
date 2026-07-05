@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 
 import androidx.annotation.NonNull;
 import co.tinode.tindroid.Const;
-import co.tinode.tindroid.UiUtils;
 import co.tinode.tindroid.UtilsBitmap;
 import co.tinode.tinodesdk.model.Mergeable;
 import co.tinode.tinodesdk.model.TheCard;

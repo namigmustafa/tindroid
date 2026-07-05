@@ -1114,7 +1114,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         int count = getItemCount();
         if (count == mPagesToLoad * MESSAGES_TO_LOAD) {
             // Check if there are gaps in the next page.
-            final StoredMessage msg = getMessage(mCursor,count - 1, 0);
+            final StoredMessage msg = getMessage(mCursor, count - 1, 0);
+            if (msg == null) {
+                return null;
+            }
             final SqlStore store = BaseDb.getInstance().getStore();
             MsgRange[] missing = store.getMissingRanges(topic, msg.seq, MESSAGES_TO_LOAD, false);
             if (missing == null) {
@@ -1452,21 +1455,21 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
                 return null;
             }
 
-            Bundle args = null;
+            Bundle args = new Bundle();
             Uri ref =  UiUtils.getUriVal("ref", data);
             if (ref != null) {
-                args = new Bundle();
                 args.putParcelable(AttachmentHandler.ARG_REMOTE_URI, ref);
             }
 
             byte[] bytes = UiUtils.getByteArray("val", data);
             if (bytes != null) {
-                args = args == null ? new Bundle() : args;
-                args.putByteArray(AttachmentHandler.ARG_SRC_BYTES, bytes);
-            }
-
-            if (args == null) {
-                return null;
+                if (bytes.length > Const.MAX_BUNDLE_PAYLOAD_SIZE) {
+                    Bundle large = new Bundle();
+                    large.putByteArray(AttachmentHandler.ARG_SRC_BYTES, bytes);
+                    args.putString("cache_id", Cache.putDataBundle(large, null));
+                } else {
+                    args.putByteArray(AttachmentHandler.ARG_SRC_BYTES, bytes);
+                }
             }
 
             args.putString(AttachmentHandler.ARG_MIME_TYPE, UiUtils.getStringVal("mime", data, null));
@@ -1500,9 +1503,17 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             if (preref != null) {
                 args.putParcelable(AttachmentHandler.ARG_PRE_URI, preref);
             }
-            byte[] bytes = UiUtils.getByteArray("preview", data);
-            if (bytes != null) {
-                args.putByteArray(AttachmentHandler.ARG_PREVIEW, bytes);
+            byte[] preview = UiUtils.getByteArray("preview", data);
+            if (preview != null) {
+                if (preview.length > Const.MAX_BUNDLE_PAYLOAD_SIZE) {
+                    String cacheId = args.getString("cache_id");
+                    Bundle large = Cache.getDataBundle(cacheId, false);
+                    large = large == null ? new Bundle() : large;
+                    large.putByteArray(AttachmentHandler.ARG_PREVIEW, preview);
+                    args.putString("cache_id", Cache.putDataBundle(large, cacheId));
+                } else {
+                    args.putByteArray(AttachmentHandler.ARG_PREVIEW, preview);
+                }
             }
             args.putString(AttachmentHandler.ARG_PRE_MIME_TYPE, UiUtils.getStringVal("premime", data, null));
 

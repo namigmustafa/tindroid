@@ -205,7 +205,7 @@ public class UtilsString {
             } else if (UCharacter.hasBinaryProperty(cp, UProperty.EMOJI) && (len > 1 || cp > 0x238C)) {
                 count++;
             } else if (cp == 0x200D) {
-                // ZERO WIDTH JOINER: it's not a stand alone codepoint and the next code point should not
+                // ZERO WIDTH JOINER: it's not a standalone codepoint and the next code point should not
                 // be counted, thus count --.
                 if (count > 0) {
                     count--;
