@@ -191,7 +191,7 @@
 
     <string name="default_contact_name">Tinode Пользователь %1$s</string>
     <string name="permission_missing">Нет прав доступа</string>
-    <string name="enter_search_query">Введите происковый запрос</string>
+    <string name="enter_search_query">Введите поисковый запрос</string>
 
     <string name="image_caption_hint">Название изображения</string>
     <string name="action_download">Сохранить</string>
@@ -299,7 +299,7 @@
     <string name="phone_number_required">Требуется действительный номер телефона</string>
     <string name="phone_number_hint">Номер мобильного телефона</string>
     <string name="unable_to_use_service">Временно недоступно. Повторите попытку позже.</string>
-    <string name="email_colon">Емейл:</string>
+    <string name="email_colon">Email:</string>
     <string name="phone_colon">Телефон:</string>
     <string name="current_email">Текущий адрес электронной почты</string>
     <string name="new_email">Новый адрес электронной почты</string>
