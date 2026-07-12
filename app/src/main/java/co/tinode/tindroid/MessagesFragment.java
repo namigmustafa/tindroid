@@ -469,14 +469,6 @@ public class MessagesFragment extends Fragment implements MenuProvider {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 if (count > 0 || before > 0) {
-                    if (mSendOnEnter) {
-                        // Send message on Enter key.
-                        if (charSequence.length() > 0 && charSequence.charAt(charSequence.length() - 1) == '\n') {
-                            sendText(activity);
-                            return;
-                        }
-                    }
-
                     activity.sendKeyPress();
                 }
 
@@ -498,6 +490,9 @@ public class MessagesFragment extends Fragment implements MenuProvider {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                if (mSendOnEnter && editable.length() > 0 && editable.charAt(editable.length() - 1) == '\n') {
+                    sendText(activity);
+                }
             }
         });
 
@@ -1443,7 +1438,8 @@ public class MessagesFragment extends Fragment implements MenuProvider {
         activity.findViewById(R.id.forwardMessagePanel).setVisibility(View.GONE);
         activity.findViewById(R.id.sendMessagePanel).setVisibility(View.VISIBLE);
         if (mTextAction == UiUtils.MsgAction.EDIT) {
-            ((EditText) activity.findViewById(R.id.editMessage)).setText("");
+            EditText editor = activity.findViewById(R.id.editMessage);
+            editor.setText(null);
             activity.findViewById(R.id.chatEditDoneButton).setVisibility(View.INVISIBLE);
             activity.findViewById(R.id.chatAudioButton).setVisibility(View.VISIBLE);
         }
@@ -1471,9 +1467,8 @@ public class MessagesFragment extends Fragment implements MenuProvider {
         activity.findViewById(R.id.replyPreviewWrapper).setVisibility(View.VISIBLE);
         if (!TextUtils.isEmpty(original)) {
             EditText editText = activity.findViewById(R.id.editMessage);
-            // Two steps: clear field, then append to move cursor to the end.
-            editText.setText("");
-            editText.append(original);
+            editText.setText(original);
+            editText.setSelection(editText.getText().length());
             editText.requestFocus();
             activity.findViewById(R.id.chatAudioButton).setVisibility(View.INVISIBLE);
             activity.findViewById(R.id.chatSendButton).setVisibility(View.INVISIBLE);
@@ -1483,7 +1478,8 @@ public class MessagesFragment extends Fragment implements MenuProvider {
             activity.findViewById(R.id.chatSendButton).setVisibility(View.INVISIBLE);
             activity.findViewById(R.id.chatEditDoneButton).setVisibility(View.INVISIBLE);
             if (mTextAction == UiUtils.MsgAction.EDIT) {
-                ((EditText)activity.findViewById(R.id.editMessage)).setText("");
+                EditText editor = activity.findViewById(R.id.editMessage);
+                editor.setText(null);
             }
         }
         TextView previewHolder = activity.findViewById(R.id.contentPreview);
