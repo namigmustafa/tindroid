@@ -119,8 +119,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-oss-licenses:17.5.1'
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'com.google.firebase:firebase-core:21.1.1'
-    implementation 'com.google.firebase:firebase-crashlytics:20.0.6'
-    implementation 'com.google.firebase:firebase-messaging:25.1.0'
+    implementation 'com.google.firebase:firebase-crashlytics:20.1.0'
+    implementation 'com.google.firebase:firebase-messaging:25.1.1'
     implementation 'com.google.mlkit:barcode-scanning:17.3.0'
 
     implementation 'com.googlecode.libphonenumber:libphonenumber:9.0.34'
