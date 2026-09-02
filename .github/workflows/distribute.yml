@@ -12,6 +12,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # build.gradle's version naming runs `git describe --tags`, which needs
+          # full history + tags - the default shallow checkout has neither.
+          fetch-depth: 0
 
       - name: Setup Java
         uses: actions/setup-java@v4
