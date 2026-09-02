@@ -56,5 +56,5 @@ jobs:
             app/build/outputs/apk/debug/app-debug.apk \
             --app 1:656202089228:android:c38faa34ad8b35eee23f29 \
             --project chatapp-48786 \
-            --testers "namigmustafa@gmail.com" \
+            --testers "namigmustafa@gmail.com,ismayilmustafa16@gmail.com" \
             --release-notes "Tindroid POC build (commit ${{ github.sha }})"
