@@ -1,0 +1,59 @@
+name: Tindroid POC → Build & Distribute
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Write local.properties
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      # signingConfigs.release reads this file unconditionally at Gradle config time
+      # even though assembleDebug never touches the release signing config - it just
+      # needs to exist with non-null values, none of which are actually used here.
+      - name: Write dummy keystore.properties (debug build never uses it)
+        run: |
+          echo "storeFile=dummy.keystore" > keystore.properties
+          echo "storePassword=dummy" >> keystore.properties
+          echo "keyAlias=dummy" >> keystore.properties
+          echo "keyPassword=dummy" >> keystore.properties
+
+      - name: Decode google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > app/google-services.json
+
+      - name: Build debug APK
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+
+      - name: Setup Node.js (for firebase-tools)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Distribute via Firebase App Distribution
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx -y firebase-tools appdistribution:distribute \
+            app/build/outputs/apk/debug/app-debug.apk \
+            --app "${{ secrets.FIREBASE_ANDROID_APP_ID }}" \
+            --project "${{ secrets.FIREBASE_PROJECT_ID }}" \
+            --testers "${{ secrets.TESTER_EMAIL }}" \
+            --release-notes "Tindroid POC build (commit ${{ github.sha }})"
