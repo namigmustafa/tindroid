@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "app.chatapp.calltest"
+        applicationId "co.tinode.tindroidx"
         minSdkVersion 27
         targetSdkVersion 36
         compileSdkVersion 36

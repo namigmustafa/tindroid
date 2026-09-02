@@ -1,0 +1,119 @@
+{
+  "project_info": {
+    "project_number": "656202089228",
+    "firebase_url": "https://chatapp-48786-default-rtdb.firebaseio.com",
+    "project_id": "chatapp-48786",
+    "storage_bucket": "chatapp-48786.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656202089228:android:eeac2cd69b96faa5e23f29",
+        "android_client_info": {
+          "package_name": "app.chatapp.calltest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "656202089228-ufahe9qbcim0thmspnnmjma9jictmlq1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgTKd5VSFGSVdk3LVbhIbEeiW-6bHxfTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656202089228-ufahe9qbcim0thmspnnmjma9jictmlq1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "656202089228-1137mqv93arn6t1n3af51640pebiq9g4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.chatapp.p2p.calltest"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656202089228:android:798f7caa2d9f273ae23f29",
+        "android_client_info": {
+          "package_name": "app.chatapp.p2p"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "656202089228-ufahe9qbcim0thmspnnmjma9jictmlq1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgTKd5VSFGSVdk3LVbhIbEeiW-6bHxfTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656202089228-ufahe9qbcim0thmspnnmjma9jictmlq1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "656202089228-1137mqv93arn6t1n3af51640pebiq9g4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.chatapp.p2p.calltest"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:656202089228:android:c38faa34ad8b35eee23f29",
+        "android_client_info": {
+          "package_name": "co.tinode.tindroidx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "656202089228-ufahe9qbcim0thmspnnmjma9jictmlq1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgTKd5VSFGSVdk3LVbhIbEeiW-6bHxfTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "656202089228-ufahe9qbcim0thmspnnmjma9jictmlq1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "656202089228-1137mqv93arn6t1n3af51640pebiq9g4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.chatapp.p2p.calltest"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
